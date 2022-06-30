@@ -1,0 +1,23 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<html>
+    <head>
+        <script src="~/js/jQuery.js"></script>
+        <script src="~/js/atalaWebCapture.js"></script>
+        <script>
+            Atalasoft.Controls.Capture.WebScanning.initialize({ License: "mEaMQ7VxVUqJd9O5VWPBKb5S9ykFTbMI0yLfjh/hTepeMbW6WHe28y/TSR26oWALKKJA1q3jsdFlzzeITvaCMPIFHLBJyO2m0bEjkHVHfV/kUqQNgcIvMTqMTd9GJHInvCn+j6Mu7LmzN6TxLT5Cp0u3LmYVCR36cYOh2VcZG34=" });
+        </script>
+    </head>
+    <body>
+        <button id="scan">Scan</button>
+        <script>
+
+$('#scan').on('click', () => {
+    Atalasoft.Controls.Capture.WebTwain.ScanApi.start();
+});
+
+        </script>
+    </body>
+</html>
+
