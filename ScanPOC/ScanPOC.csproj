@@ -33,6 +33,9 @@
     <Content Update="wwwroot\js\Atalasoft.WebCapture.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\js\atalaWebCapture.js.map">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
