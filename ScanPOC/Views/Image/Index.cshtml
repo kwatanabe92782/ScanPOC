@@ -6,9 +6,33 @@
         <script src="~/js/jQuery.js"></script>
         <script src="~/js/atalaWebCapture.js"></script>
         <script>
+
+             function ISODateString(d) {
+
+                function pad(n) {
+                    return n < 10 ? '0' + n : n;
+                }
+
+                 return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
+            };
+
+            function generateWingScanKey() {
+                //var isVRSlicensed = true;
+                //var keyPlain = Ext.String.format("{0}&{1}&{2}&{3}", window.location.hostname, ISODateString(new Date()), true, isVRSlicensed);
+                var keyPlain = window.location.hostname + "&" + ISODateString(new Date()) + "&true&true";
+                var key = '';
+                for (var i = 0; i < keyPlain.length; i++) {
+                    key += String.fromCharCode(keyPlain.charCodeAt(i) ^ 0x12);
+                }
+                return key;
+            };
+
             Atalasoft.Controls.Capture.WebScanning.initialize(
                 { 
-                    license: "mEaMQ7VxVUqJd9O5VWPBKb5S9ykFTbMI0yLfjh/hTepeMbW6WHe28y/TSR26oWALKKJA1q3jsdFlzzeITvaCMPIFHLBJyO2m0bEjkHVHfV/kUqQNgcIvMTqMTd9GJHInvCn+j6Mu7LmzN6TxLT5Cp0u3LmYVCR36cYOh2VcZG34=",
+                    license: {
+                        key: generateWingScanKey(),
+                        barcode: 1778508764
+                    },
                     onScanError: function(msg, params) { console.log(msg); },
                     scanningOptions: {
                         applyVRS: true, // turn on VRS
@@ -29,11 +53,40 @@
         <script>
 
 $('#scan').on('click', () => {
-    Atalasoft.Controls.Capture.WebScanning.scanningOptions.scanner = $('.atala-scanner-list').val();
-    Atalasoft.Controls.Capture.WebScanning.scan();
+    //Atalasoft.Controls.Capture.WebScanning.scanningOptions.scanner = $('.atala-scanner-list').val();
+    //Atalasoft.Controls.Capture.WebScanning.scan();
+    var scanOptionsForImport =
+    {
+        applyVRS: true, // turn on VRS                    
+        resultPixelType: 0, //  -- VRS
+        suppressBackgroundColor: true, // if image has solid background color, treat that as 'white' -- VRS
+        discardBlankPages: true, // just what it says. Most useful when scanning duplex with some blank backs. -- VRS
+        tiff: { jpegCompression: true }, // if you are saving to TIFF and might be saving color, this shrinks the files *a lot* 
+        deliverables: {
+            localFile: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75,
+                split: false,
+                chunkSize: 0,
+            },
+            originalImageFile: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75
+            },
+            thumbnail: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75,
+                height: undefined,
+                width: undefined
+            }
+        }
+    };
+    Atalasoft.Controls.Capture.WebScanning.importFiles(scanOptionsForImport);
 });
 
         </script>
     </body>
 </html>
-
