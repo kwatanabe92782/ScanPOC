@@ -16,9 +16,7 @@
                  return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
             };
 
-            function generateWingScanKey() {
-                //var isVRSlicensed = true;
-                //var keyPlain = Ext.String.format("{0}&{1}&{2}&{3}", window.location.hostname, ISODateString(new Date()), true, isVRSlicensed);
+            function generateWingScanKey() {           
                 var keyPlain = window.location.hostname + "&" + ISODateString(new Date()) + "&true&true";
                 var key = '';
                 for (var i = 0; i < keyPlain.length; i++) {
@@ -27,25 +25,53 @@
                 return key;
             };
 
-            Atalasoft.Controls.Capture.WebScanning.initialize(
-                { 
-                    license: {
-                        key: generateWingScanKey(),
-                        barcode: 1778508764
-                    },
-                    onScanError: function(msg, params) { console.log(msg); },
-                    scanningOptions: {
-                        applyVRS: true, // turn on VRS
-                        duplex: 1, // double-sided scanning
-                        resultPixelType: 0, //  -- VRS
-                        suppressBackgroundColor: true, // if image has solid background color, treat that as 'white' -- VRS
-                        discardBlankPages: true, // just what it says. Most useful when scanning duplex with some blank backs. -- VRS
-                        tiff: { jpegCompression: true}, // if you are saving to TIFF and might be saving color, this shrinks the files *a lot* 
-                        showScannerUI: true
-                    },
+            try {
+                Atalasoft.Controls.Capture.WebScanning.initialize(
+                    {
+                        license: {
+                            key: generateWingScanKey(),
+                            barcode: "1778508764"
+                        },                        
+                        backwardCompatibilityMode: true,
+                        handlerUrl: '',
+                        scanningOptions: {
+                            applyVRS: true, // turn on VRS
+                            duplex: 1, // double-sided scanning
+                            resultPixelType: 0, //  -- VRS
+                            suppressBackgroundColor: true, // if image has solid background color, treat that as 'white' -- VRS
+                            discardBlankPages: true, // just what it says. Most useful when scanning duplex with some blank backs. -- VRS
+                            tiff: { jpegCompression: true}, // if you are saving to TIFF and might be saving color, this shrinks the files *a lot* 
+                            showScannerUI: true
+                        },
+                        onScanClientReady: function() {
+                            console.log("onScanClientReady"); 
+                        },
+                        onScanError: function(msg, params) { 
+                            console.log("onScanError: " + msg); 
+                            console.log(params); 
+                        },
+                        onShutdown: function() {
+                            console.log("onShutdown"); 
+                        },                        
+                        onScanStarted: function(eventName, eventObj) {
+                            console.log("onScanStarted"); 
+                        },
+                        onScanCompleted: function(eventName, eventObj) {
+                           console.log("onScanCompleted"); 
+                        },
+                        onImageAcquired: function(event, image) {
+                            console.log("onImageAcquired"); 
+                        },
+                        onImageDiscarded: function(event) {
+                            console.log("onImageDiscarded"); 
+                        }
 
-                }
-            );
+                    }
+                );
+            }
+            catch (e) {
+                console.log(e);
+            }
         </script>
     </head>
     <body>
@@ -83,7 +109,8 @@ $('#scan').on('click', () => {
                 width: undefined
             }
         }
-    };
+    };    
+    Atalasoft.Controls.Capture.WebScanning.LocalFile.setEncryptionKey("wGggl+PQzocTpnXC9i3gJQ==", function() { } );
     Atalasoft.Controls.Capture.WebScanning.importFiles(scanOptionsForImport);
 });
 
