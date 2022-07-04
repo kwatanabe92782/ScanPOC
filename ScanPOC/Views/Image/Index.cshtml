@@ -25,7 +25,9 @@
                 return key;
             };
 
-            try {
+            $(document).ready(function() {
+                console.log("going to init scanner");
+                try {
                 Atalasoft.Controls.Capture.WebScanning.initialize(
                     {
                         license: {
@@ -61,6 +63,11 @@
                         },
                         onImageAcquired: function(event, image) {
                             console.log("onImageAcquired"); 
+
+                            Atalasoft.Controls.Capture.WebScanning.LocalFile.asBase64String(image.localFile, 'jpg', function(base64data) {
+						        var image = document.getElementById('scannedImage');
+						        image.src = 'data:image/tiff;base64,' + base64data;
+					        });
                         },
                         onImageDiscarded: function(event) {
                             console.log("onImageDiscarded"); 
@@ -72,6 +79,10 @@
             catch (e) {
                 console.log(e);
             }
+            });
+            
+            console.log("end of script load");
+
         </script>
     </head>
     <body>
@@ -115,5 +126,8 @@ $('#scan').on('click', () => {
 });
 
         </script>
+    <br/>
+    <br/>
+    <img id="scannedImage" alt="The first scanned image will appear here..." style="border:2px solid black;width:600px;height:800px" />
     </body>
 </html>
