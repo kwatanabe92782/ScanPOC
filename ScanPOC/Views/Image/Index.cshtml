@@ -64,9 +64,22 @@
                         onImageAcquired: function(event, image) {
                             console.log("onImageAcquired"); 
 
+                            var fileName = image.path.substring(image.path.lastIndexOf('\\')+1);
+
                             Atalasoft.Controls.Capture.WebScanning.LocalFile.asBase64String(image.localFile, 'jpg', function(base64data) {
 						        var image = document.getElementById('scannedImage');
 						        image.src = 'data:image/tiff;base64,' + base64data;
+
+                                var xhr = new XMLHttpRequest();
+                                xhr.addEventListener("load", () => {
+                                    alert(fileName + ' saved Successfully');
+                                });
+                                xhr.addEventListener("error", () => {
+                                    alert(fileName + ' could not be saved!');
+                                });
+                                xhr.open('POST', '/api/Image/Upload');
+                                xhr.setRequestHeader("Content-Type", "text/json");
+                                xhr.send(JSON.stringify({Data:base64data,Identifier:fileName}));
 					        });
                         },
                         onImageDiscarded: function(event) {
