@@ -1,0 +1,143 @@
+﻿<html>
+    <head>
+        <script src="/js/jQuery.js"></script>
+        <script src="/js/atalaWebCapture.js"></script>
+        <script>
+
+             function ISODateString(d) {
+
+                function pad(n) {
+                    return n < 10 ? '0' + n : n;
+                }
+
+                 return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
+            };
+
+            function generateWingScanKey() {           
+                var keyPlain = window.location.hostname + "&" + ISODateString(new Date()) + "&true&true";
+                var key = '';
+                for (var i = 0; i < keyPlain.length; i++) {
+                    key += String.fromCharCode(keyPlain.charCodeAt(i) ^ 0x12);
+                }
+                return key;
+            };
+
+            $(document).ready(function() {
+                console.log("going to init scanner");
+                try {
+                Atalasoft.Controls.Capture.WebScanning.initialize(
+                    {
+                        license: {
+                            key: generateWingScanKey(),
+                            barcode: "1778508764"
+                        },                        
+                        backwardCompatibilityMode: true,
+                        handlerUrl: '',
+                        scanningOptions: {
+                            applyVRS: true, // turn on VRS
+                            duplex: 1, // double-sided scanning
+                            resultPixelType: 0, //  -- VRS
+                            suppressBackgroundColor: true, // if image has solid background color, treat that as 'white' -- VRS
+                            discardBlankPages: true, // just what it says. Most useful when scanning duplex with some blank backs. -- VRS
+                            tiff: { jpegCompression: true}, // if you are saving to TIFF and might be saving color, this shrinks the files *a lot* 
+                            showScannerUI: true
+                        },
+                        onScanClientReady: function() {
+                            console.log("onScanClientReady"); 
+                        },
+                        onScanError: function(msg, params) { 
+                            console.log("onScanError: " + msg); 
+                            console.log(params); 
+                        },
+                        onShutdown: function() {
+                            console.log("onShutdown"); 
+                        },                        
+                        onScanStarted: function(eventName, eventObj) {
+                            console.log("onScanStarted"); 
+                        },
+                        onScanCompleted: function(eventName, eventObj) {
+                           console.log("onScanCompleted"); 
+                        },
+                        onImageAcquired: function(event, image) {
+                            console.log("onImageAcquired"); 
+
+                            var fileName = image.path.substring(image.path.lastIndexOf('\\')+1);
+
+                            Atalasoft.Controls.Capture.WebScanning.LocalFile.asBase64String(image.localFile, 'jpg', function(base64data) {
+						        var image = document.getElementById('scannedImage');
+						        image.src = 'data:image/tiff;base64,' + base64data;
+
+                                var xhr = new XMLHttpRequest();
+                                xhr.addEventListener("load", () => {
+                                    alert(fileName + ' saved Successfully');
+                                });
+                                xhr.addEventListener("error", () => {
+                                    alert(fileName + ' could not be saved!');
+                                });
+                                xhr.open('POST', '/upload');
+                                xhr.setRequestHeader("Content-Type", "application/json");
+                                xhr.send(JSON.stringify({data:base64data,identifier:fileName}));
+					        });
+                        },
+                        onImageDiscarded: function(event) {
+                            console.log("onImageDiscarded"); 
+                        }
+
+                    }
+                );
+            }
+            catch (e) {
+                console.log(e);
+            }
+            });
+            
+            console.log("end of script load");
+
+        </script>
+    </head>
+    <body>
+        <button id="scan">Scan</button>
+        <script>
+
+$('#scan').on('click', () => {
+    //Atalasoft.Controls.Capture.WebScanning.scanningOptions.scanner = $('.atala-scanner-list').val();
+    //Atalasoft.Controls.Capture.WebScanning.scan();
+    var scanOptionsForImport =
+    {
+        applyVRS: true, // turn on VRS                    
+        resultPixelType: 0, //  -- VRS
+        suppressBackgroundColor: true, // if image has solid background color, treat that as 'white' -- VRS
+        discardBlankPages: true, // just what it says. Most useful when scanning duplex with some blank backs. -- VRS
+        tiff: { jpegCompression: true }, // if you are saving to TIFF and might be saving color, this shrinks the files *a lot* 
+        deliverables: {
+            localFile: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75,
+                split: false,
+                chunkSize: 0,
+            },
+            originalImageFile: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75
+            },
+            thumbnail: {
+                format: 'tif',
+                jpegCompression: false,
+                quality: 75,
+                height: undefined,
+                width: undefined
+            }
+        }
+    };    
+    Atalasoft.Controls.Capture.WebScanning.LocalFile.setEncryptionKey("wGggl+PQzocTpnXC9i3gJQ==", function() { } );
+    Atalasoft.Controls.Capture.WebScanning.importFiles(scanOptionsForImport);
+});
+
+        </script>
+    <br/>
+    <br/>
+    <img id="scannedImage" alt="The first scanned image will appear here..." style="border:2px solid black;width:600px;height:800px" />
+    </body>
+</html>
